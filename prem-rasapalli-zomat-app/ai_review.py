@@ -1,36 +1,29 @@
-import os
-import sys
 import vertexai
 from vertexai.generative_models import GenerativeModel
+import os
+import sys
 
 def ai_review():
     try:
-        # Initialize Vertex AI
         project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
         location = "asia-south1"
 
+        # Initialize Vertex AI properly
         vertexai.init(project=project_id, location=location)
 
-        # Load model
         model = GenerativeModel("gemini-1.5-pro")
 
-        # Sample input (later we will pass PR diff)
-        prompt = "Review this Python FastAPI code and suggest improvements:\n\n@app.get('/')\ndef home(): return {'msg':'hello'}"
+        prompt = "Review this FastAPI code:\n@app.get('/')\ndef home(): return {'msg':'hello'}"
 
-        # Generate response
         response = model.generate_content(prompt)
 
-        return response.text
+        print("AI Review Output:\n")
+        print(response.text)
 
     except Exception as e:
-        return f"AI Review Failed: {str(e)}"
+        print(f"AI Review Failed: {str(e)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    result = ai_review()
-    print(result)
-
-    if "Failed" in result:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    ai_review()
