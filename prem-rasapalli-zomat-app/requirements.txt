@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 pytest
+vertexai
+google-cloud-aiplatform
