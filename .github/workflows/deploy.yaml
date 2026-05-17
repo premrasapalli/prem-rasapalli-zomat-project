@@ -46,7 +46,7 @@ jobs:
 
       # 🤖 8. AI Code Review (Vertex AI)
       - name: AI Code Review
-        run: python ai_review.py
+        run: python prem-rasapalli-zomat-app/ai_review.py
 
       # 🐳 9. Build Docker Image (Cloud Build)
       - name: Build Docker Image
