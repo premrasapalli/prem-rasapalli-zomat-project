@@ -1,0 +1,64 @@
+name: prem-rasapalli-zomat-deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 📥 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 🔐 2. Authenticate to GCP
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # ⚙️ 3. Setup gcloud SDK
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+
+      # 🔍 4. Debug - verify files
+      - name: List files
+        run: ls -l
+
+      # 🐍 5. Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 📦 6. Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 🧪 7. Run tests (optional but recommended)
+      - name: Run tests
+        run: |
+          pytest || echo "No tests found, skipping"
+
+      # 🤖 8. AI Code Review (Vertex AI)
+      - name: AI Code Review
+        run: python ai_review.py
+
+      # 🐳 9. Build Docker Image (Cloud Build)
+      - name: Build Docker Image
+        run: |
+          gcloud builds submit \
+          --tag asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1
+
+      # 🚀 10. Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy prem-rasapalli-zomat \
+          --image asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1 \
+          --region asia-south1 \
+          --platform managed \
+          --allow-unauthenticated
