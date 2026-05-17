@@ -1,0 +1,7 @@
+image:
+  repository: asia-south1-docker.pkg.dev/prem-rasapalli-zomat-dev/prem-zomat-repo/app
+  tag: v1
+
+service:
+  type: LoadBalancer
+  port: 80

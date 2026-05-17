@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prem-zomat-service
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: prem-zomat
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 80

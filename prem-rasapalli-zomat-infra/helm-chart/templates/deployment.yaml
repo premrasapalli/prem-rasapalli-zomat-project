@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prem-zomat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prem-zomat
+  template:
+    metadata:
+      labels:
+        app: prem-zomat
+    spec:
+      containers:
+      - name: prem-zomat
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 80
