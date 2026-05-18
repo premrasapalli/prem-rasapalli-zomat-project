@@ -15,6 +15,7 @@ jobs:
 
       # 🔐 2. Authenticate to GCP
       - name: Authenticate to GCP
+        id: auth
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
@@ -23,38 +24,44 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
 
-      # 🔍 4. Debug - verify files
+      # ✅ 🔥 4. FIX: Export ADC for Python (CRITICAL)
+      - name: Export Google Credentials for ADC
+        run: |
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ env.GOOGLE_GHA_CREDS_PATH }}" >> $GITHUB_ENV
+          echo "GOOGLE_CLOUD_PROJECT=project-zomat-app" >> $GITHUB_ENV
+
+      # 🔍 5. Debug - verify files
       - name: List files
         run: ls -l
 
-      # 🐍 5. Setup Python
+      # 🐍 6. Setup Python (upgrade to 3.11 recommended)
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      # 📦 6. Install dependencies
+      # 📦 7. Install dependencies
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 🧪 7. Run tests (optional but recommended)
+      # 🧪 8. Run tests
       - name: Run tests
         run: |
           pytest || echo "No tests found, skipping"
 
-      # 🤖 8. AI Code Review (Vertex AI)
+      # 🤖 9. AI Code Review (Vertex AI)
       - name: AI Code Review
         run: python prem-rasapalli-zomat-app/ai_review.py
 
-      # 🐳 9. Build Docker Image (Cloud Build)
+      # 🐳 10. Build Docker Image
       - name: Build Docker Image
         run: |
           gcloud builds submit \
           --tag asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1
 
-      # 🚀 10. Deploy to Cloud Run
+      # 🚀 11. Deploy to Cloud Run
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy prem-rasapalli-zomat \
