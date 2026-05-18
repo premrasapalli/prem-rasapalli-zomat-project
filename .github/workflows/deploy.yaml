@@ -13,20 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 🔐 2. Use REAL service account key
-      - name: Create credentials file
-        run: |
-          echo '${{ secrets.GCP_SA_KEY }}' > key.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=key.json" >> $GITHUB_ENV
-          echo "GOOGLE_CLOUD_PROJECT=project-zomat-app" >> $GITHUB_ENV
+      # 🔐 2. Authenticate to GCP (ONLY THIS METHOD)
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       # ⚙️ 3. Setup gcloud
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
 
-      # 🔍 4. Debug - verify files
-      - name: List files
-        run: ls -l
+      # 🔍 4. Debug authentication (VERY IMPORTANT)
+      - name: Debug Auth
+        run: |
+          gcloud auth list
+          gcloud config list
 
       # 🐍 5. Setup Python
       - name: Setup Python
@@ -45,7 +46,7 @@ jobs:
         run: |
           pytest || echo "No tests found, skipping"
 
-      # 🤖 8. AI Code Review
+      # 🤖 8. AI Code Review (Vertex AI)
       - name: AI Code Review
         run: python prem-rasapalli-zomat-app/ai_review.py
 
