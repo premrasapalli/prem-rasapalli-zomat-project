@@ -4,13 +4,12 @@ from vertexai.generative_models import GenerativeModel
 
 def review_code():
     try:
-        # ✅ Use GitHub-provided credentials automatically (ADC)
         vertexai.init(
             project="project-zomat-app",
             location="us-central1"
         )
 
-        model = GenerativeModel("gemini-1.5-flash")
+        model = GenerativeModel("gemini-1.0-pro")
 
         response = model.generate_content(
             "Review this FastAPI code and suggest improvements:\n\n"
