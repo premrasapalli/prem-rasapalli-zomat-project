@@ -11,7 +11,7 @@ def ai_review():
         # Initialize Vertex AI properly
         vertexai.init(project=project_id, location=location)
 
-        model = GenerativeModel("gemini-1.5-pro")
+        model = GenerativeModel("gemini-1.5-flash")
 
         prompt = "Review this FastAPI code:\n@app.get('/')\ndef home(): return {'msg':'hello'}"
 
