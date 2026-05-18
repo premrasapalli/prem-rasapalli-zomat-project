@@ -3,8 +3,9 @@ from vertexai.generative_models import GenerativeModel
 import os
 
 vertexai.init(
-    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
-    location="us-central1"
+    project="project-zomat-app",
+    location="us-central1" 
+)
 )
 
 model = GenerativeModel("gemini-1.5-flash")
