@@ -9,73 +9,82 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout
+      # 📥 1. Checkout
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 🐍 Python
+      # 🐍 2. Python setup
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 📦 Install deps
+      # 📦 3. Install deps
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install requests
 
-      # 🧪 Tests
+      # 🧪 4. Run tests
       - name: Run tests
-        run: pytest || echo "No tests"
+        run: pytest || echo "No tests found"
 
-      # 🧠 Install Ollama
+      # 🧠 5. Install Ollama
       - name: Install Ollama
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
 
-      # 🚀 Start Ollama (IMPORTANT FIX)
+      # 🚀 6. Start Ollama (ROBUST)
       - name: Start Ollama Server
         run: |
           nohup ollama serve > ollama.log 2>&1 &
-          sleep 15
 
-      # 📥 Pull SMALL model (CRITICAL OPTIMIZATION)
+          echo "⏳ Waiting for Ollama..."
+          for i in {1..12}; do
+            sleep 5
+            if curl -s http://localhost:11434 > /dev/null; then
+              echo "✅ Ollama ready"
+              break
+            fi
+          done
+
+      # 📥 7. Pull lightweight model
       - name: Pull Model
         run: |
           ollama pull llama3:8b
 
-      # 🔍 Debug Ollama
-      - name: Check Ollama
-        run: |
-          curl http://localhost:11434
-
-      # 🤖 AI Code Review
-      - name: AI Code Review (Local LLM)
+      # 🤖 8. AI Review (NON-BLOCKING)
+      - name: AI Code Review
         run: python prem-rasapalli-zomat-app/ai_review.py
 
-      # 🔐 GCP Auth
+      # 🔐 9. Authenticate to GCP
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # ⚙️ gcloud
+      # ⚙️ 10. Setup gcloud
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
 
-      # 🐳 Build
+      # 🔍 11. Debug (optional)
+      - name: Debug gcloud
+        run: |
+          gcloud auth list
+          gcloud config list
+
+      # 🐳 12. Build Docker Image
       - name: Build Docker Image
         run: |
           gcloud builds submit \
-          --tag asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1
+            --tag asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1
 
-      # 🚀 Deploy
+      # 🚀 13. Deploy to Cloud Run
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy prem-rasapalli-zomat \
-          --image asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1 \
-          --region asia-south1 \
-          --platform managed \
-          --allow-unauthenticated
+            --image asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1 \
+            --region asia-south1 \
+            --platform managed \
+            --allow-unauthenticated
