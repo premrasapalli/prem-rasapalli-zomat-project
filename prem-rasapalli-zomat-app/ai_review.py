@@ -1,38 +1,47 @@
 import requests
 import os
+import subprocess
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
 
-def get_code():
+def get_changed_code():
+    try:
+        files = subprocess.getoutput("git diff --name-only HEAD~1").split("\n")
+    except:
+        files = []
+
     code = ""
-    for root, _, files in os.walk("."):
-        for file in files:
-            if file.endswith(".py"):
-                try:
-                    with open(os.path.join(root, file), "r") as f:
-                        code += f"\n# File: {file}\n" + f.read()
-                except:
-                    pass
+
+    for file in files:
+        if file.endswith(".py") and os.path.exists(file):
+            try:
+                with open(file, "r") as f:
+                    code += f"\n# File: {file}\n" + f.read()
+            except:
+                pass
+
     return code
 
 
 def review_code():
     try:
-        code = get_code()
+        code = get_changed_code()
 
         if not code.strip():
-            print("⚠️ No Python files found")
+            print("⚠️ No changed Python files found")
             return
+
+        print("⏳ Sending code to Ollama...")
 
         response = requests.post(
             OLLAMA_URL,
             json={
                 "model": "llama3:8b",
-                "prompt": f"Review this code and suggest improvements:\n{code}",
+                "prompt": f"Review this FastAPI code and suggest improvements:\n{code}",
                 "stream": False
             },
-            timeout=120
+            timeout=300
         )
 
         result = response.json()
@@ -42,8 +51,7 @@ def review_code():
 
     except Exception as e:
         print("❌ AI Review Failed:", str(e))
-        # IMPORTANT: Don't fail pipeline
-        print("⚠️ Continuing pipeline...")
+        print("⚠️ Skipping AI and continuing pipeline...")
 
 
 if __name__ == "__main__":
