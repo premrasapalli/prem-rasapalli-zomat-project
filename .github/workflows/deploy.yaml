@@ -51,6 +51,8 @@ jobs:
 
       # 🤖 8. AI Code Review (Vertex AI)
       - name: AI Code Review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python prem-rasapalli-zomat-app/ai_review.py
 
       # 🐳 9. Build Docker Image
