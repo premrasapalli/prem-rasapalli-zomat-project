@@ -45,6 +45,10 @@ jobs:
       - name: Run tests
         run: |
           pytest || echo "No tests found, skipping"
+      # Debug
+      - name: Debug Identity Token
+        run: |
+          gcloud auth print-access-token
 
       # 🤖 8. AI Code Review (Vertex AI)
       - name: AI Code Review
