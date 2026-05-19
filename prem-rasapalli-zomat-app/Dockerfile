@@ -12,4 +12,4 @@ COPY . .
 
 RUN pip install fastapi uvicorn
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "prem-rasapalli-zomat-app.main:app", "--host", "0.0.0.0", "--port", "8080"]
