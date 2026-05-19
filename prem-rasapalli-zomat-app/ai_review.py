@@ -1,15 +1,12 @@
-import vertexai
-from vertexai.generative_models import GenerativeModel
+import google.generativeai as genai
+import os
 
 def review_code():
     try:
-        vertexai.init(
-            project="project-zomat-app",
-            location="us-central1"
-        )
+        # ✅ Use API Key (NOT Vertex AI)
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-        # ✅ USE SUPPORTED MODEL
-        model = GenerativeModel("gemini-1.0-pro")
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
         response = model.generate_content(
             "Review this FastAPI project and suggest improvements"
