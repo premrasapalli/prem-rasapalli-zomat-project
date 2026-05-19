@@ -1,15 +1,15 @@
-import google.generativeai as genai
+from google import genai
 import os
 
 def review_code():
     try:
-        # ✅ Use API Key (NOT Vertex AI)
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        # Initialize Gemini client using API key
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-        model = genai.GenerativeModel("gemini-1.5-flash")
-
-        response = model.generate_content(
-            "Review this FastAPI project and suggest improvements"
+        # ✅ Use stable working model
+        response = client.models.generate_content(
+            model="gemini-1.5-pro",
+            contents="Review this FastAPI project and suggest improvements"
         )
 
         print("\n✅ AI Code Review Output:\n")
