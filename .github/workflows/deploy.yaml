@@ -9,59 +9,69 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 1. Checkout code
+      # 📥 Checkout
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 🔐 2. Authenticate to GCP (ONLY THIS METHOD)
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-      # ⚙️ 3. Setup gcloud
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v1
-
-      # 🔍 4. Debug auth (optional but helpful)
-      - name: Debug Auth
-        run: |
-          echo "== AUTH LIST =="
-          gcloud auth list
-
-          echo "== ACCESS TOKEN =="
-          gcloud auth print-access-token
-
-      # 🐍 5. Setup Python
+      # 🐍 Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 📦 6. Install dependencies
+      # 📦 Install deps
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip install requests
 
-      # 🧪 7. Run tests
+      # 🧪 Tests
       - name: Run tests
-        run: |
-          pytest || echo "No tests found, skipping"
+        run: pytest || echo "No tests"
 
-      # 🤖 8. AI Code Review (Vertex AI)
-      - name: AI Code Review
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      # 🧠 Install Ollama
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+
+      # 🚀 Start Ollama (IMPORTANT FIX)
+      - name: Start Ollama Server
+        run: |
+          nohup ollama serve > ollama.log 2>&1 &
+          sleep 15
+
+      # 📥 Pull SMALL model (CRITICAL OPTIMIZATION)
+      - name: Pull Model
+        run: |
+          ollama pull llama3:8b
+
+      # 🔍 Debug Ollama
+      - name: Check Ollama
+        run: |
+          curl http://localhost:11434
+
+      # 🤖 AI Code Review
+      - name: AI Code Review (Local LLM)
         run: python prem-rasapalli-zomat-app/ai_review.py
 
-      # 🐳 9. Build Docker Image
+      # 🔐 GCP Auth
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # ⚙️ gcloud
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+
+      # 🐳 Build
       - name: Build Docker Image
         run: |
           gcloud builds submit \
           --tag asia-south1-docker.pkg.dev/project-zomat-app/prem-repo/app:v1
 
-      # 🚀 10. Deploy to Cloud Run
+      # 🚀 Deploy
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy prem-rasapalli-zomat \
@@ -69,6 +79,3 @@ jobs:
           --region asia-south1 \
           --platform managed \
           --allow-unauthenticated
-
-
-          
