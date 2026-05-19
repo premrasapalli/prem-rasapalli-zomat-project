@@ -3,16 +3,14 @@ from vertexai.generative_models import GenerativeModel
 
 def review_code():
     try:
-        # Initialize Vertex AI
         vertexai.init(
             project="project-zomat-app",
             location="us-central1"
         )
 
-        # Load Gemini model
-        model = GenerativeModel("gemini-1.5-flash")
+        # ✅ USE SUPPORTED MODEL
+        model = GenerativeModel("gemini-1.0-pro")
 
-        # Prompt
         response = model.generate_content(
             "Review this FastAPI project and suggest improvements"
         )
