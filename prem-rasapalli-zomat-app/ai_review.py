@@ -8,7 +8,7 @@ def review_code():
 
         # ✅ Use stable working model
         response = client.models.generate_content(
-            model="gemini-1.5-pro",
+            model="gemini-2.0-flash",
             contents="Review this FastAPI project and suggest improvements"
         )
 
